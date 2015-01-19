@@ -14,23 +14,22 @@ import socket
 import select
 
 print "Bitte Port eingeben:"
-port = raw_input("> ")
-port = int(port)
+port = 5000
 
 #Sendet Daten an ale Nutzer
-def broadcast_data (sock, message):
+def broadcast_data (sock_id, message):
     #Do not send the message to master socket and the client who has send us the message
-    for socket in CONNECTION_LIST:
-        if socket != server_socket and socket != sock :
+    for id, socket in CONNECTION_LIST.items():
+        if id != server_socket.fileno() and id != sock_id:
             try :
                 socket.send(message)
-            except :
-                socket.close()
-                CONNECTION_LIST.remove(socket)
+            except Exception as e:
+                broadcast_data(id, "Client {} is offline.\n".format(id))
+                del CONNECTION_LIST[id]
 
 if __name__ == "__main__":
 
-    CONNECTION_LIST = []
+    CONNECTION_LIST = {}
     RECV_BUFFER = 4096 # Advisable to keep it as an exponent of 2
     PORT = port
 
@@ -38,25 +37,31 @@ if __name__ == "__main__":
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind(("0.0.0.0", PORT))
     server_socket.listen(10)
+    server_sock_id = server_socket.fileno()
 
     # Add server socket to the list of readable connections
-    CONNECTION_LIST.append(server_socket)
+    CONNECTION_LIST[server_sock_id] = server_socket
 
     print "Server wurde gestartet, Port: " + str(PORT)
 
     while 1:
         # Get the list sockets which are ready to be read through select
-        read_sockets,write_sockets,error_sockets = select.select(CONNECTION_LIST,[],[])
+        read_sockets,write_sockets,error_sockets = select.select(CONNECTION_LIST.keys(),[],[])
 
-        for sock in read_sockets:
+        for sock_id in read_sockets:
+            sock = CONNECTION_LIST.get(sock_id, None)
+            if sock is None:
+                continue
+
             #Neue Verbindung
-            if sock == server_socket:
+            if sock_id == server_sock_id:
                 # Handle the case in which there is a new connection recieved through server_socket
                 sockfd, addr = server_socket.accept()
-                CONNECTION_LIST.append(sockfd)
-                print "Client (%s, %s) connected" % addr
+                id = sockfd.fileno()
 
-                broadcast_data(sockfd, "[%s:%s] entered room\n" % addr)
+                CONNECTION_LIST[id] = sockfd
+                print "{} Client {} connected".format(id, addr)
+                broadcast_data(id, "[%s:%s] entered room\n" % addr)
 
             #Some incoming message from a client
             else:
@@ -64,13 +69,15 @@ if __name__ == "__main__":
                 try:
                     data = sock.recv(RECV_BUFFER)
                     if data:
-                        broadcast_data(sock, "\r" + '<' + str(sock.getpeername()) + '> ' + data)
+                        broadcast_data(sock_id, "\r" + '<' + str(sock.getpeername()) + '> ' + data)
 
-                except:
-                    broadcast_data(sock, "Client (%s, %s) ist offline" % addr)
-                    print "Client (%s, %s) is offline" % addr
-                    sock.close()
-                    CONNECTION_LIST.remove(sock)
+                except Exception as e:
+                    broadcast_data(sock_id, "{} Client {} ist offline".format(sock_id, addr))
+                    print "{} Client {} ist offline".format(sock_id, addr)
+                    if sock:
+                        sock.close()
+                        del CONNECTION_LIST[sock_id]
+
                     continue
 
     server_socket.close()
