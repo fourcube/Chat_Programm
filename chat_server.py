@@ -12,9 +12,12 @@
 
 import socket
 import select
+import time
 
 print "Bitte Port eingeben:"
-port = 5000
+port = raw_input("> ")
+port = int(port)
+
 
 #Sendet Daten an ale Nutzer
 def broadcast_data (sock_id, message):
@@ -80,4 +83,5 @@ if __name__ == "__main__":
 
                     continue
 
+        time.sleep(0.01)
     server_socket.close()
