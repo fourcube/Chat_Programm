@@ -13,11 +13,7 @@
 import socket
 import select
 import time
-
-print "Bitte Port eingeben:"
-port = raw_input("> ")
-port = int(port)
-
+import sys
 
 #Sendet Daten an ale Nutzer
 def broadcast_data (sock_id, message):
@@ -32,9 +28,13 @@ def broadcast_data (sock_id, message):
 
 if __name__ == "__main__":
 
+    if(len(sys.argv) < 2) :
+        print 'python chat_server.py port'
+        sys.exit()
+
+    PORT = int(sys.argv[1])
     CONNECTION_LIST = {}
     RECV_BUFFER = 4096 # Advisable to keep it as an exponent of 2
-    PORT = port
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
