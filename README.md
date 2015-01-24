@@ -1,11 +1,11 @@
 # Chat_Programm
-1. Server starten:
+1. start server:
     python chat_server.py (port)
-3. Client verbinden:
+2. connect to server:
     python chat_client.py (ip) (port)
 
 # Update
 execute: 
- crontab -e
+    crontab -e
 paste: 
- 30 11 * * * "part to update.sh"/update.sh (download every day at 11:30 A.M the new code) 
+    30 11 * * * "part to update.sh"/update.sh (download every day at 11:30 A.M the new code) 
