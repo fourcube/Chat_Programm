@@ -15,6 +15,28 @@ def prompt() :
     sys.stdout.write('<You> ')
     sys.stdout.flush()
 
+def encryptedMessage(message, key):
+	encrypted = ''
+	for symbol in message:
+        	if symbol.isalpha():
+        	    num = ord(symbol)
+        	    num += key
+        	    if symbol.isupper():
+        	        if num > ord('Z'):
+        	            num -= 26
+        	        elif num < ord('A'):
+        	            num += 26
+        	    elif symbol.islower():
+        	        if num > ord('z'):
+        	            num -= 26
+        	        elif num < ord('a'):
+        	            num += 26
+        	    encrypted += chr(num)
+        	else:
+        	    encrypted += symbol	
+		global msg		
+		msg = encrypted	
+
 #main function
 if __name__ == "__main__":
 
@@ -59,5 +81,6 @@ if __name__ == "__main__":
             #user entered a message
             else :
                 msg = sys.stdin.readline()
-                s.send(msg)
+		encryptedMessage(msg, 6)
+		s.send(msg)
                 prompt()
