@@ -5,7 +5,7 @@
     python chat_client.py (ip) (port)
 
 # Update
-execute: 
-    crontab -e
-paste: 
-    30 11 * * * "part to update.sh"/update.sh (download every day at 11:30 A.M the new code) 
+1. execute:
+        crontab -e
+2. paste:
+        30 11 * * * "part to update.sh"/update.sh (download every day at 11:30 A.M the new code) 
