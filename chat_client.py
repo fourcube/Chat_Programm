@@ -37,6 +37,31 @@ def encryptedMessage(message, key):
 		global msg		
 		msg = encrypted	
 
+def decryptedMessage(incommingData, key):
+	key = -key	
+	decrypted = ''
+	for symbol in incommingData:
+        	if symbol.isalpha():
+        	    num = ord(symbol)
+        	    num += key
+        	    if symbol.isupper():
+        	        if num > ord('Z'):
+        	            num -= 26
+        	        elif num < ord('A'):
+        	            num += 26
+        	    elif symbol.islower():
+        	        if num > ord('z'):
+        	            num -= 26
+        	        elif num < ord('a'):
+        	            num += 26
+        	    decrypted += chr(num)
+
+        	else:
+        	    decrypted += symbol	
+		global data		
+		data = decrypted 
+
+
 #main function
 if __name__ == "__main__":
 
@@ -54,10 +79,10 @@ if __name__ == "__main__":
     try :
         s.connect((host, port))
     except :
-        print 'Keine Verbindung zum Server'
+        print "Can't connect to server"
         sys.exit()
 
-    print 'Verbunden mit Server. Beginne Nachrichten zu schreiben.'
+    print 'Connected to server. Start to write messages.'
     prompt()
 
     while 1:
@@ -75,6 +100,7 @@ if __name__ == "__main__":
                     sys.exit()
                 else :
                     #print data
+		    decryptedMessage(data, 6)
                     sys.stdout.write(data)
                     prompt()
 
