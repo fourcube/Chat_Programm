@@ -23,7 +23,7 @@ def broadcast_data (sock_id, message):
             try :
                 socket.send(message)
             except Exception as e:
-                broadcast_data(id, "Client {} is offline.\n".format(id))
+                #broadcast_data(id, "Client {} is offline.\n".format(id))
                 del CONNECTION_LIST[id]
 
 if __name__ == "__main__":
@@ -63,8 +63,8 @@ if __name__ == "__main__":
                 id = sockfd.fileno()
 
                 CONNECTION_LIST[id] = sockfd
-                print "{} Client {} connected".format(id, addr)
-                broadcast_data(id, "[%s:%s] entered room\n" % addr)
+                #print "{} Client {} connected".format(id, addr)
+                #broadcast_data(id, "[%s:%s] entered room\n" % addr)
 
             #Some incoming message from a client
             else:
@@ -75,8 +75,8 @@ if __name__ == "__main__":
                         broadcast_data(sock_id, "\r" + '<' + str(sock.getpeername()) + '> ' + data)
 
                 except Exception as e:
-                    broadcast_data(sock_id, "{} Client {} ist offline".format(sock_id, addr))
-                    print "{} Client {} ist offline".format(sock_id, addr)
+                    #broadcast_data(sock_id, "{} Client {} ist offline".format(sock_id, addr))
+                    #print "{} Client {} ist offline".format(sock_id, addr)
                     if sock:
                         sock.close()
                         del CONNECTION_LIST[sock_id]
