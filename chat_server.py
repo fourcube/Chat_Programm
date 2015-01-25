@@ -15,15 +15,25 @@ import select
 import time
 import sys
 
-# Function to broadcast chat messages to all connected clients
-def broadcast_data (sock_id, message):
-    #Do not send the message to master socket and the client who has send us the message
+from crypto import encryptedMessage, decryptedMessage
+
+def broadcast_no_recurse (sock_id, message):
     for id, socket in CONNECTION_LIST.items():
         if id != server_socket.fileno() and id != sock_id:
-            try :
+            try:
                 socket.send(message)
             except Exception as e:
-                broadcast_data(id, "Client {} is offline.\n".format(id))
+                del CONNECTION_LIST[id]
+
+# Function to broadcast chat messages to all connected clients
+def broadcast_data (sock_id, message):
+    #Do not send the message to master socket and the client who has sent us the message
+    for id, socket in CONNECTION_LIST.items():
+        if id != server_socket.fileno() and id != sock_id:
+            try:
+                socket.send(message)
+            except Exception as e:
+                broadcast_no_recurse(id, encryptedMessage("Client {} is offline.\n".format(id), 6))
                 del CONNECTION_LIST[id]
 
 if __name__ == "__main__":
@@ -64,7 +74,7 @@ if __name__ == "__main__":
 
                 CONNECTION_LIST[id] = sockfd
                 print "{} Client {} connected".format(id, addr)
-                #broadcast_data(id, "[%s:%s] entered room\n" % addr)
+                broadcast_data(id, encryptedMessage("[%s:%s] entered room\n" % addr, 6))
 
             # Some incoming message from a client
             else:

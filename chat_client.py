@@ -10,56 +10,11 @@
 #
 
 import socket, select, string, sys
+from crypto import encryptedMessage, decryptedMessage
 
 def prompt() :
     sys.stdout.write('<You> ')
     sys.stdout.flush()
-
-def encryptedMessage(outgoingData, key):
-	encrypted = ''
-	for symbol in outgoingData:
-        	if symbol.isalpha():
-        	    num = ord(symbol)
-        	    num += key
-        	    if symbol.isupper():
-        	        if num > ord('Z'):
-        	            num -= 26
-        	        elif num < ord('A'):
-        	            num += 26
-        	    elif symbol.islower():
-        	        if num > ord('z'):
-        	            num -= 26
-        	        elif num < ord('a'):
-        	            num += 26
-        	    encrypted += chr(num)
-        	else:
-        	    encrypted += symbol	
-		global msg		
-		msg = encrypted	
-
-def decryptedMessage(incommingData, key):
-	key = -key	
-	decrypted = ''
-	for symbol in incommingData:
-        	if symbol.isalpha():
-        	    num = ord(symbol)
-        	    num += key
-        	    if symbol.isupper():
-        	        if num > ord('Z'):
-        	            num -= 26
-        	        elif num < ord('A'):
-        	            num += 26
-        	    elif symbol.islower():
-        	        if num > ord('z'):
-        	            num -= 26
-        	        elif num < ord('a'):
-        	            num += 26
-        	    decrypted += chr(num)
-
-        	else:
-        	    decrypted += symbol	
-		global data		
-		data = decrypted 
 
 
 #main function
@@ -98,15 +53,15 @@ if __name__ == "__main__":
                 if not data :
                     print '\nDisconnected from server'
                     sys.exit()
-                else :
+                else:
                     #print data
-		    decryptedMessage(data, 6)
-                    sys.stdout.write(data)
-                    prompt()
+		            decryptedData = decryptedMessage(data, 6)
+                sys.stdout.write(decryptedData)
+                prompt()
 
             #user entered a message
-            else :
+            else:
                 msg = sys.stdin.readline()
-		encryptedMessage(msg, 6)
-		s.send(msg)
+	        encryptedData = encryptedMessage(msg, 6)
+	        s.send(encryptedData)
                 prompt()
