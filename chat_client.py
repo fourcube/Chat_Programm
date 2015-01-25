@@ -15,9 +15,9 @@ def prompt() :
     sys.stdout.write('<You> ')
     sys.stdout.flush()
 
-def encryptedMessage(message, key):
+def encryptedMessage(outgoingData, key):
 	encrypted = ''
-	for symbol in message:
+	for symbol in outgoingData:
         	if symbol.isalpha():
         	    num = ord(symbol)
         	    num += key
@@ -96,7 +96,7 @@ if __name__ == "__main__":
             if sock == s:
                 data = sock.recv(4096)
                 if not data :
-                    print '\nVom Server getrennt'
+                    print '\nDisconnected from server'
                     sys.exit()
                 else :
                     #print data
