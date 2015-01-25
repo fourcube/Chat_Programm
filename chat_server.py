@@ -15,7 +15,7 @@ import select
 import time
 import sys
 
-#Sendet Daten an ale Nutzer
+# Function to broadcast chat messages to all connected clients
 def broadcast_data (sock_id, message):
     #Do not send the message to master socket and the client who has send us the message
     for id, socket in CONNECTION_LIST.items():
@@ -23,7 +23,7 @@ def broadcast_data (sock_id, message):
             try :
                 socket.send(message)
             except Exception as e:
-                #broadcast_data(id, "Client {} is offline.\n".format(id))
+                broadcast_data(id, "Client {} is offline.\n".format(id))
                 del CONNECTION_LIST[id]
 
 if __name__ == "__main__":
@@ -56,19 +56,19 @@ if __name__ == "__main__":
             if sock is None:
                 continue
 
-            #Neue Verbindung
+            # New connection
             if sock_id == server_sock_id:
                 # Handle the case in which there is a new connection recieved through server_socket
                 sockfd, addr = server_socket.accept()
                 id = sockfd.fileno()
 
                 CONNECTION_LIST[id] = sockfd
-                #print "{} Client {} connected".format(id, addr)
+                print "{} Client {} connected".format(id, addr)
                 #broadcast_data(id, "[%s:%s] entered room\n" % addr)
 
-            #Some incoming message from a client
+            # Some incoming message from a client
             else:
-                # Daten vom Client
+                # Data recieved from client
                 try:
                     data = sock.recv(RECV_BUFFER)
                     if data:
@@ -76,7 +76,7 @@ if __name__ == "__main__":
 
                 except Exception as e:
                     #broadcast_data(sock_id, "{} Client {} ist offline".format(sock_id, addr))
-                    #print "{} Client {} ist offline".format(sock_id, addr)
+                    print "{} Client {} ist offline".format(sock_id, addr)
                     if sock:
                         sock.close()
                         del CONNECTION_LIST[sock_id]
