@@ -18,6 +18,11 @@ import protocol
 
 from crypto import encryptedMessage, decryptedMessage
 
+# Remove client from CONNECTION_LIST if exists
+def remove_client (id):
+    if id in CONNECTION_LIST:
+	del CONNECTION_LIST[id]
+
 # Function to broadcast chat messages to all connected clients
 def broadcast_data (sock_id, message, recurse=True):
     #Do not send the message to master socket and the client who has sent us the message
@@ -34,7 +39,7 @@ def broadcast_data (sock_id, message, recurse=True):
                         recurse = False) # If "broadcast_data" throws an
                                          # Exception again, do not recurse
                                          # any deeper
-                del CONNECTION_LIST[id]
+                remove_client(id)		
 
 if __name__ == "__main__":
 
@@ -91,7 +96,7 @@ if __name__ == "__main__":
                     print "{} Client {} ist offline".format(sock_id, addr)
                     if sock:
                         sock.close()
-                        del CONNECTION_LIST[sock_id]
+                    remove_client(id)		
 
                     continue
 
