@@ -17,27 +17,45 @@ import protocol
 
 from crypto import encryptedMessage, decryptedMessage
 
+DEBUG=False
+USERNAME=""
+
 def prompt() :
-    sys.stdout.write('<You> ')
+    sys.stdout.write('<%s> ' % USERNAME)
     sys.stdout.flush()
 
 def receive_message(data):
     packet_type = protocol.get_type(data)
+
     if packet_type is protocol.PING:
-        print("PING")
+        if DEBUG:
+            print("\nDEBUG: PING")
+            prompt()
+        return
     elif packet_type is protocol.TEXT:
-        decryptedData = decryptedMessage(protocol.unpack_text(data), 6)
-        sys.stdout.write(decryptedData)
+        decryptedData = decryptedMessage(data, 6)
+        unpacked = protocol.unpack_text(decryptedData)
+        sys.stdout.write('\r' + unpacked + '\n')
+    elif packet_type is protocol.CLIENT_MESSAGE:
+        decryptedData = decryptedMessage(data, 6)
+        unpacked = protocol.unpack_client_message(decryptedData)
+        sys.stdout.write("\r<%s> %s" % (unpacked[0], unpacked[1]))
+
+    prompt()
 
 #main function
 if __name__ == "__main__":
 
     if(len(sys.argv) < 3) :
-        print 'python chat_server.py ip port'
+        print 'python chat_server.py ip port username <debug>'
         sys.exit()
 
     host = sys.argv[1]
     port = int(sys.argv[2])
+    USERNAME = sys.argv[3]
+    if len(sys.argv) > 4:
+        DEBUG = True
+        print "Debug mode active."
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(2)
@@ -69,11 +87,10 @@ if __name__ == "__main__":
                     #print data
                     receive_message(data)
 
-                prompt()
-
             #user entered a message
             else:
                 msg = sys.stdin.readline()
-	        encryptedData = encryptedMessage(msg, 6)
-	        s.send(protocol.pack_text(encryptedData))
+                packed = protocol.pack_client_message(USERNAME, msg)
+    	        encryptedData = encryptedMessage(packed, 6)
+                s.send(encryptedData)
                 prompt()
