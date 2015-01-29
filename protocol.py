@@ -1,25 +1,18 @@
 from struct import pack, unpack, unpack_from, calcsize
 
-MESSAGE_TYPE = {
-    'PING': 0x0001,
-    'TEXT': 0x0002
-}
-
-MESSAGE_TYPE_REVERSE = {}
-
-for k,v in MESSAGE_TYPE.items():
-    MESSAGE_TYPE_REVERSE[v] = k
+PING = 0x0001
+TEXT = 0x0002
 
 def get_type(packet):
     return unpack_from('!h', packet)[0]
 
 def pack_ping():
-    return pack('!h', MESSAGE_TYPE['PING'])
+    return pack('!h', PING)
 
 def pack_text(text):
     length = len(text)
     return pack('!hh%ds' % length, # Dynamisches format
-        MESSAGE_TYPE['TEXT'],   # 0x0002
+        TEXT,   # 0x0002
         len(text),              # Textlaenge
         text)                   # Text
 
@@ -32,7 +25,7 @@ def unpack_packet(packet):
     packet_type = get_type(packet)
 
     # Wenn es ein PING ist, muessen wir nichts weiter tun
-    if packet_type is MESSAGE_TYPE['PING']:
+    if packet_type is PING:
         return packet_type
-    elif packet_type is MESSAGE_TYPE['TEXT']:
+    elif packet_type is TEXT:
         return unpack_text(packet)

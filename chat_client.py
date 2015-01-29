@@ -9,13 +9,25 @@
 # original source: http://www.binarytides.com/code-chat-application-server-client-sockets-python/
 #
 
-import socket, select, string, sys
+import socket
+import select
+import string
+import sys
+import protocol
+
 from crypto import encryptedMessage, decryptedMessage
 
 def prompt() :
     sys.stdout.write('<You> ')
     sys.stdout.flush()
 
+def receive_message(data):
+    packet_type = protocol.get_type(data)
+    if packet_type is protocol.PING:
+        print("PING")
+    elif packet_type is protocol.TEXT:
+        decryptedData = decryptedMessage(protocol.unpack_text(data), 6)
+        sys.stdout.write(decryptedData)
 
 #main function
 if __name__ == "__main__":
@@ -55,13 +67,13 @@ if __name__ == "__main__":
                     sys.exit()
                 else:
                     #print data
-		            decryptedData = decryptedMessage(data, 6)
-                sys.stdout.write(decryptedData)
+                    receive_message(data)
+
                 prompt()
 
             #user entered a message
             else:
                 msg = sys.stdin.readline()
 	        encryptedData = encryptedMessage(msg, 6)
-	        s.send(encryptedData)
+	        s.send(protocol.pack_text(encryptedData))
                 prompt()

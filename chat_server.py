@@ -14,6 +14,7 @@ import socket
 import select
 import time
 import sys
+import protocol
 
 from crypto import encryptedMessage, decryptedMessage
 
@@ -26,9 +27,10 @@ def broadcast_data (sock_id, message, recurse=True):
                 socket.send(message)
             except Exception as e:
                 if recurse:
+                    offlineMsg = protocol.pack_text("Client %s is offline.\n" % id)
                     broadcast_data(
                         sock_id = id,
-                        message = encryptedMessage("Client {} is offline.\n".format(id), 6),
+                        message = encryptedMessage(offlineMsg, 6),
                         recurse = False) # If "broadcast_data" throws an
                                          # Exception again, do not recurse
                                          # any deeper
@@ -72,7 +74,9 @@ if __name__ == "__main__":
 
                 CONNECTION_LIST[id] = sockfd
                 print "{} Client {} connected".format(id, addr)
-                broadcast_data(id, encryptedMessage("[%s:%s] entered room\n" % addr, 6))
+
+                msg = protocol.pack_text("[%s:%s] entered room\n" % addr)
+                broadcast_data(id, encryptedMessage(msg, 6))
 
             # Some incoming message from a client
             else:
@@ -80,7 +84,7 @@ if __name__ == "__main__":
                 try:
                     data = sock.recv(RECV_BUFFER)
                     if data:
-                        broadcast_data(sock_id, "\r" + '<' + str(sock.getpeername()) + '> ' + data)
+                        broadcast_data(sock_id, data)
 
                 except Exception as e:
                     #broadcast_data(sock_id, "{} Client {} ist offline".format(sock_id, addr))
